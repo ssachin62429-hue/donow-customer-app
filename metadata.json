@@ -1,0 +1,6 @@
+{
+  "name": "DoNow",
+  "description": "DoNow on-demand human assistance marketplace ecosystem: Admin Mobile & Web Panel, Partner App, and Customer App. Kaam hai? DoNow.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

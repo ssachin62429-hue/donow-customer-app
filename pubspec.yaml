@@ -1,0 +1,35 @@
+name: donow_customer_app
+description: "DoNow Customer App - Hyper-local micro-assistance & queue waiting on-demand marketplace."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI & Design System
+  cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
+
+  # Networking & REST API (Render Backend)
+  http: ^1.2.0
+
+  # Local Key-Value Persistence (Auth Token, User Session)
+  shared_preferences: ^2.2.2
+
+  # Location & Geolocation (GPS Centering, Distance calc)
+  geolocator: ^10.1.0
+
+  # Masked Calling / URL Launching
+  url_launcher: ^6.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
