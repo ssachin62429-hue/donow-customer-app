@@ -1,8 +1,8 @@
 // File: lib/config/api_config.dart
 /// Central configuration for connecting Customer App to Render Backend & Neon PostgreSQL.
 class ApiConfig {
-  /// Replace with your actual Render web service URL (e.g., https://donow-backend.onrender.com)
-  static const String baseUrl = 'https://donow-backend.onrender.com/api/v1';
+  /// Exact Live Render URL from user's dashboard
+  static const String baseUrl = 'https://donow-backend-tca5.onrender.com/api/v1';
 
   // Auth endpoints
   static const String sendOtp = '$baseUrl/auth/send-otp';
