@@ -18,6 +18,11 @@ import {
   INITIAL_NOTIFICATIONS,
   INITIAL_TICKETS,
 } from '../data/mockRepository';
+import {
+  broadcastOrderToPartners,
+  subscribeToLiveOrder,
+  SharedLiveOrder,
+} from '../lib/firebase';
 
 interface AppContextType {
   // Navigation
@@ -132,6 +137,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [language, setLanguage] = useState<Language>('en');
 
   const [profile, setProfile] = useState<CustomerProfile>(defaultProfile);
+  const [liveOrderId, setLiveOrderId] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<PermissionsState>({
     location: true,
     notifications: true,
@@ -224,10 +230,87 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const handleBookingSubmit = () => {
-    // Start matching flow
+    // Start matching flow & broadcast to real-time Firebase Firestore
     setMatchingStage(1);
+    const orderId = `DN-${Math.floor(10000 + Math.random() * 90000)}`;
+    setLiveOrderId(orderId);
+
+    const liveOrder: SharedLiveOrder = {
+      id: orderId,
+      customerId: 'CUST-POOJA-01',
+      customerName: profile.name || 'Pooja Verma',
+      customerPhone: profile.mobile || '9876543210',
+      serviceCategory: bookingDraft.serviceName || 'Waiting in Line / Q Management',
+      taskDescription: bookingDraft.customTaskDescription || bookingDraft.serviceName,
+      locationAddress: `${bookingDraft.locationName}, ${bookingDraft.fullAddress}`,
+      landmark: bookingDraft.landmark || 'Hazratganj, Lucknow',
+      status: 'finding_partner',
+      arrivalOtp: '4829',
+      partnerId: null,
+      partnerName: null,
+      partnerPhone: null,
+      partnerRating: 4.9,
+      totalAmount: (bookingDraft.expectedDurationMins * bookingDraft.ratePerMin) + bookingDraft.tipAmount,
+      tipAmount: bookingDraft.tipAmount,
+      estimatedDurationMins: bookingDraft.expectedDurationMins,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    broadcastOrderToPartners(liveOrder);
     navigate('finding-partner');
   };
+
+  // Real-time synchronization: When Partner accepts or updates order via Firebase
+  useEffect(() => {
+    if (!liveOrderId) return;
+    const unsub = subscribeToLiveOrder(liveOrderId, (updatedOrder) => {
+      if (updatedOrder.status === 'accepted' && currentScreen === 'finding-partner') {
+        const acceptedPartner = {
+          ...DEMO_PARTNER,
+          name: updatedOrder.partnerName || DEMO_PARTNER.name,
+          rating: updatedOrder.partnerRating || DEMO_PARTNER.rating,
+        };
+        const newOrder: Order = {
+          id: updatedOrder.id,
+          serviceId: bookingDraft.serviceId,
+          serviceName: updatedOrder.serviceCategory,
+          customerName: updatedOrder.customerName,
+          partner: acceptedPartner,
+          status: 'active',
+          date: bookingDraft.date,
+          scheduledTimeRange: `${bookingDraft.startTime} – 12:00 PM`,
+          locationName: bookingDraft.locationName,
+          fullAddress: updatedOrder.locationAddress,
+          landmark: updatedOrder.landmark,
+          meetingInstructions: bookingDraft.meetingInstructions,
+          expectedDurationMins: updatedOrder.estimatedDurationMins,
+          ratePerMin: bookingDraft.ratePerMin,
+          baseFare: updatedOrder.estimatedDurationMins * bookingDraft.ratePerMin,
+          tipAmount: updatedOrder.tipAmount,
+          finalAmount: updatedOrder.totalAmount,
+          paymentMethod: 'Cash',
+          paymentStatus: 'Pending',
+          bookingTime: 'Just now',
+          taskDetails: updatedOrder.taskDescription,
+          timeline: [
+            { status: 'Order Placed', time: 'Just now', description: 'Order created by customer' },
+            { status: 'Partner Accepted', time: 'Just now', description: `${acceptedPartner.name} accepted via Firebase Live Sync` },
+          ],
+        };
+        setActiveOrder(newOrder);
+        setOrders((prev) => [newOrder, ...prev]);
+        navigate('partner-accepted');
+      } else if (updatedOrder.status === 'arrived' && currentScreen === 'partner-accepted') {
+        handlePartnerArrive();
+      } else if (updatedOrder.status === 'in_progress' && currentScreen === 'partner-arrived') {
+        handleStartWork();
+      } else if (updatedOrder.status === 'completed' && (currentScreen === 'work-in-progress' || currentScreen === 'partner-arrived')) {
+        handleCompleteWork();
+      }
+    });
+    return () => unsub();
+  }, [liveOrderId, currentScreen, bookingDraft]);
 
   const addTipAndSearch = (tipAmount: number) => {
     updateBookingDraft({ tipAmount });

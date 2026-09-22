@@ -21,6 +21,9 @@ import { Screen13PerformanceCooldown } from './screens/Screen13PerformanceCooldo
 import { Screen14NoShowCancellation } from './screens/Screen14NoShowCancellation';
 import { Screen15SupportTicket } from './screens/Screen15SupportTicket';
 import { Screen16ProfileSettings } from './screens/Screen16ProfileSettings';
+import { Screen17CallPartner } from './screens/Screen17CallPartner';
+import { Screen18ChatPartner } from './screens/Screen18ChatPartner';
+import { Screen19EmergencySOS } from './screens/Screen19EmergencySOS';
 
 interface PartnerAppContentProps {
   onSwitchToCustomerApp?: () => void;
@@ -37,6 +40,9 @@ const PartnerAppContent: React.FC<PartnerAppContentProps> = ({ onSwitchToCustome
     'partner-navigation',
     'partner-work-timer',
     'partner-commission-locked',
+    'partner-call',
+    'partner-chat',
+    'partner-sos',
   ].includes(currentScreen);
 
   const renderScreen = () => {
@@ -73,6 +79,12 @@ const PartnerAppContent: React.FC<PartnerAppContentProps> = ({ onSwitchToCustome
         return <Screen15SupportTicket />;
       case 'partner-profile':
         return <Screen16ProfileSettings />;
+      case 'partner-call':
+        return <Screen17CallPartner />;
+      case 'partner-chat':
+        return <Screen18ChatPartner />;
+      case 'partner-sos':
+        return <Screen19EmergencySOS />;
       default:
         return <Screen05HomeDashboard />;
     }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePartner } from '../context/PartnerContext';
-import { UserX, Clock, Phone, AlertCircle, ArrowLeft, FastForward } from 'lucide-react';
+import { UserX, Clock, Phone, AlertCircle, ArrowLeft, FastForward, MessageSquare } from 'lucide-react';
 
 export const Screen14NoShowCancellation: React.FC = () => {
   const {
@@ -62,9 +62,21 @@ export const Screen14NoShowCancellation: React.FC = () => {
             </span>
           </div>
 
-          <div className="bg-neutral-900 p-3 rounded-xl border border-neutral-800 text-xs text-neutral-300 flex items-center justify-center gap-2">
-            <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>Customer {incomingOrder.customerFirstName}: Called 2 times</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate('partner-call')}
+              className="flex-1 bg-neutral-900 hover:bg-neutral-800 p-3 rounded-xl border border-neutral-800 text-xs text-neutral-200 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+            >
+              <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Call Customer (Masked Relay)</span>
+            </button>
+            <button
+              onClick={() => navigate('partner-chat')}
+              className="p-3 bg-neutral-900 hover:bg-neutral-800 rounded-xl border border-neutral-800 text-neutral-300 flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+              title="Chat with Customer"
+            >
+              <MessageSquare className="w-4 h-4 text-amber-400" />
+            </button>
           </div>
         </div>
 

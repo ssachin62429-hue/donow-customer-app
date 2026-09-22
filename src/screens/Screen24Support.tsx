@@ -9,6 +9,8 @@ import {
   Clock,
   Heart,
   EyeOff,
+  X,
+  Send,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { HeaderBar } from '../components/HeaderBar';
@@ -17,6 +19,23 @@ export const Screen24Support: React.FC = () => {
   const { currentScreen, t, language } = useApp();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [activeSubTab, setActiveSubTab] = useState<'faq' | 'terms' | 'privacy'>('faq');
+  const [showLiveChat, setShowLiveChat] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'support', text: 'Namaste! DoNow 24x7 Support Desk mein aapka swaagat hai. Hum aapki kya madad kar sakte hain?' },
+  ]);
+
+  const handleSendSupportMsg = () => {
+    if (!chatInput.trim()) return;
+    setChatMessages((prev) => [...prev, { sender: 'user', text: chatInput.trim() }]);
+    setChatInput('');
+    setTimeout(() => {
+      setChatMessages((prev) => [
+        ...prev,
+        { sender: 'support', text: 'Aapki query register kar li gayi hai. Hamara support executive 60 seconds mein respond kar raha hai.' },
+      ]);
+    }, 1000);
+  };
 
   const faqs = [
     {
@@ -123,8 +142,8 @@ export const Screen24Support: React.FC = () => {
 
                 <button
                   type="button"
-                  onClick={() => alert('Support chat agent connected! How can we help?')}
-                  className="p-3 rounded-xl bg-neutral-100 hover:bg-neutral-200/80 text-neutral-900 border border-neutral-200 flex items-center gap-2.5 transition-colors"
+                  onClick={() => setShowLiveChat(true)}
+                  className="p-3 rounded-xl bg-neutral-100 hover:bg-neutral-200/80 text-neutral-900 border border-neutral-200 flex items-center gap-2.5 transition-colors active:scale-95"
                 >
                   <MessageCircle className="w-4 h-4 text-neutral-700" />
                   <div className="text-left">
@@ -228,6 +247,72 @@ export const Screen24Support: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Live Support Chat Drawer */}
+      {showLiveChat && (
+        <div className="fixed inset-0 z-50 bg-neutral-950/80 backdrop-blur-xs flex flex-col justify-end">
+          <div className="bg-white rounded-t-3xl max-h-[85vh] h-[520px] flex flex-col shadow-2xl border-t border-neutral-200">
+            <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs">
+                  💬
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-neutral-900">DoNow 24x7 Helpdesk</h4>
+                  <span className="text-[10px] text-emerald-600 flex items-center gap-1 font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Agent Online
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLiveChat(false)}
+                className="p-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-500"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-neutral-50 text-xs">
+              {chatMessages.map((m, i) => (
+                <div
+                  key={i}
+                  className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] p-3 rounded-2xl ${
+                      m.sender === 'user'
+                        ? 'bg-emerald-700 text-white rounded-br-none'
+                        : 'bg-white text-neutral-800 border border-neutral-200 rounded-bl-none shadow-xs'
+                    }`}
+                  >
+                    {m.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-3 bg-white border-t border-neutral-200 flex items-center gap-2">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendSupportMsg()}
+                placeholder="Type your message..."
+                className="flex-1 text-xs px-3.5 py-2.5 bg-neutral-100 rounded-xl border border-neutral-200 focus:outline-none focus:border-emerald-600"
+              />
+              <button
+                type="button"
+                onClick={handleSendSupportMsg}
+                className="p-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl shadow-xs"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

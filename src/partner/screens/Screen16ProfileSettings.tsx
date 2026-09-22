@@ -141,7 +141,6 @@ export const Screen16ProfileSettings: React.FC = () => {
             <div className="space-y-2 pt-2">
               <button
                 onClick={() => {
-                  alert('Partner account marked for deletion. Logged out.');
                   setShowDeleteModal(false);
                   navigate('partner-splash');
                 }}

@@ -8,6 +8,10 @@ import {
   PerformanceStats,
 } from '../types';
 import { partnerTranslations, PartnerTranslationKey } from '../i18n/partnerTranslations';
+import {
+  subscribeToLatestBroadcastOrder,
+  updateLiveOrderStatus,
+} from '../../lib/firebase';
 
 interface PartnerContextType {
   currentScreen: PartnerScreenId;
@@ -160,8 +164,8 @@ export const PartnerProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Commission wallet state
   const [commission, setCommission] = useState<CommissionState>({
-    pendingAmount: 85,
-    completedOrdersCount: 2,
+    pendingAmount: 0,
+    completedOrdersCount: 0,
     isLocked: false,
   });
 
@@ -191,6 +195,35 @@ export const PartnerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
     return () => clearInterval(interval);
   }, [isTimerRunning, currentScreen]);
+
+  // Real-time synchronization: Listen to live customer broadcast orders
+  useEffect(() => {
+    const unsub = subscribeToLatestBroadcastOrder((liveOrder) => {
+      if (liveOrder.status === 'finding_partner' && isOnline) {
+        setIncomingOrder((prev) => ({
+          ...prev,
+          id: liveOrder.id,
+          customerFirstName: liveOrder.customerName || 'Pooja',
+          serviceEn: liveOrder.serviceCategory || 'Queue Standing & Line Waiting',
+          serviceHi: liveOrder.serviceCategory || 'लाइन व कतार प्रतीक्षा',
+          locationName: liveOrder.locationAddress || 'Hazratganj, Lucknow',
+          fullAddress: liveOrder.locationAddress || 'Hazratganj, Lucknow',
+          distanceKm: 1.2,
+          scheduledTimeRange: '10:00 AM – 12:30 PM',
+          expectedDurationMins: liveOrder.estimatedDurationMins || 150,
+          totalPartnerEarning: liveOrder.totalAmount || 490,
+          customerTip: liveOrder.tipAmount || 40,
+          partnerBaseEarning: (liveOrder.totalAmount || 490) - (liveOrder.tipAmount || 40),
+        }));
+
+        // Automatically trigger incoming order alert if on home dashboard
+        if (currentScreen === 'partner-home') {
+          navigate('partner-incoming-order');
+        }
+      }
+    });
+    return () => unsub();
+  }, [isOnline, currentScreen]);
 
   // No-Show timer countdown when on Screen 14
   useEffect(() => {
@@ -248,6 +281,13 @@ export const PartnerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const acceptIncomingOrder = () => {
+    updateLiveOrderStatus(incomingOrder.id, {
+      status: 'accepted',
+      partnerId: 'PTR-8812',
+      partnerName: profile.name || 'Rajesh Kumar',
+      partnerPhone: profile.mobile || '+91 98765 43210',
+      partnerRating: profile.rating || 4.9,
+    });
     navigate('partner-navigation');
   };
 
@@ -258,6 +298,9 @@ export const PartnerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const validateArrivalCode = (code: string): boolean => {
     if (code.trim() === arrivalCode) {
       setDistanceMetres(15);
+      updateLiveOrderStatus(incomingOrder.id, {
+        status: 'arrived',
+      });
       navigate('partner-work-timer');
       return true;
     }
@@ -266,6 +309,9 @@ export const PartnerProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const markArrived = (): boolean => {
     if (distanceMetres <= 50) {
+      updateLiveOrderStatus(incomingOrder.id, {
+        status: 'arrived',
+      });
       navigate('partner-work-timer');
       return true;
     } else {
@@ -276,22 +322,48 @@ export const PartnerProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const endWorkAndGenerateBill = () => {
     setIsTimerRunning(false);
+    updateLiveOrderStatus(incomingOrder.id, {
+      status: 'in_progress',
+      actualDurationMins: Math.max(150, Math.ceil(timerSeconds / 60)),
+    });
     navigate('partner-cash-collection');
   };
 
   const confirmCashCollected = () => {
+    updateLiveOrderStatus(incomingOrder.id, {
+      status: 'completed',
+      cashCollected: true,
+      actualDurationMins: Math.max(150, Math.ceil(timerSeconds / 60)),
+    });
+
+    let willLock = false;
     // Add completed order to commission tracking
     setCommission((prev) => {
       const newCount = prev.completedOrdersCount + 1;
       const newAmount = prev.pendingAmount + 30; // ₹30 platform cut added to pending
       const locked = newAmount >= 100 || newCount >= 3;
+      willLock = locked;
       return {
         pendingAmount: newAmount,
         completedOrdersCount: newCount,
         isLocked: locked,
       };
     });
-    navigate('partner-commission-wallet');
+
+    setProfile((prev) => ({
+      ...prev,
+      totalOrdersCompleted: prev.totalOrdersCompleted + 1,
+    }));
+
+    // USER DIRECTIVE:
+    // "Jab tak 3 order complete ya commission 100 rs na ho jaaye... Partner ko pay commission nhi bolna hai"
+    // Return partner directly to Home Dashboard ready for the next order.
+    // ONLY if threshold (100 rs OR 3 orders) is reached does it lock the account.
+    if (willLock) {
+      navigate('partner-commission-locked');
+    } else {
+      navigate('partner-home');
+    }
   };
 
   const payCommissionUPI = () => {
@@ -323,7 +395,6 @@ export const PartnerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const markCustomerNoShow = () => {
-    alert('Customer marked as No-Show. ₹60 cancellation compensation credited to your wallet.');
     navigate('partner-home');
   };
 

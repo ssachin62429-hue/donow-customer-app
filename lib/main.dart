@@ -28,6 +28,14 @@ import 'screens/screen_23_sos_safety.dart';
 import 'screens/screen_24_support_faq.dart';
 import 'screens/screen_24_support_faqs.dart';
 
+// Partner App Screens
+import 'partner/screens/partner_home_screen.dart';
+import 'partner/screens/partner_active_task_screen.dart';
+import 'partner/screens/partner_meter_screen.dart';
+import 'partner/screens/partner_settlement_screen.dart';
+import 'partner/screens/partner_earnings_screen.dart';
+import 'partner/screens/partner_profile_screen.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -117,6 +125,14 @@ class DoNowCustomerApp extends StatelessWidget {
         '/sos': (context) => const Screen23SosSafety(),
         '/support-faq': (context) => const Screen24SupportFaqs(),
         '/support-faqs': (context) => const Screen24SupportFaqs(),
+
+        // Partner App Routes
+        '/partner-home': (context) => const PartnerHomeScreen(),
+        '/partner-active': (context) => const PartnerActiveTaskScreen(),
+        '/partner-meter': (context) => const PartnerMeterScreen(),
+        '/partner-settlement': (context) => const PartnerSettlementScreen(),
+        '/partner-earnings': (context) => const PartnerEarningsScreen(),
+        '/partner-profile': (context) => const PartnerProfileScreen(),
       },
     );
   }

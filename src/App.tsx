@@ -7,6 +7,8 @@ import { ChatModal } from './components/ChatModal';
 import { ScreenSwitcherModal } from './components/ScreenSwitcherModal';
 import { PartnerApp } from './partner/PartnerApp';
 import { DoNowAdminEcosystem } from './admin/DoNowAdminEcosystem';
+import { InstallAppsModal } from './components/InstallAppsModal';
+import { Download, Smartphone } from 'lucide-react';
 
 // Screens 1 - 24 (Customer App)
 import { Screen01Splash } from './screens/Screen01Splash';
@@ -129,69 +131,107 @@ const CustomerAppContent: React.FC<CustomerAppContentProps> = ({ onSwitchToPartn
 };
 
 export default function App() {
-  const [appMode, setAppMode] = useState<'admin' | 'partner' | 'customer'>('admin');
+  const [appMode, setAppMode] = useState<'admin' | 'partner' | 'customer'>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const app = params.get('app');
+    if (app === 'customer') return 'customer';
+    if (app === 'partner') return 'partner';
+    return 'admin';
+  });
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+
+  // Sync mode changes to URL without page refresh
+  const handleModeChange = (mode: 'admin' | 'partner' | 'customer') => {
+    setAppMode(mode);
+    const url = new URL(window.location.href);
+    url.searchParams.set('app', mode);
+    window.history.replaceState({}, '', url.toString());
+  };
 
   return (
     <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-start sm:justify-center p-0 select-none font-sans">
       {/* Top Universal Ecosystem Bar */}
-      <div className="w-full bg-neutral-900 border-b border-neutral-800 px-4 py-2 flex items-center justify-between text-xs z-50">
+      <div className="w-full bg-neutral-900 border-b border-neutral-800 px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-xs z-50">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-amber-500 text-neutral-950 flex items-center justify-center font-black text-xs">
             ⚡
           </div>
-          <span className="font-extrabold text-white tracking-tight">DoNow Prototype Suite</span>
+          <span className="font-extrabold text-white tracking-tight">DoNow Live Suite</span>
+          <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px] border border-emerald-500/30">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Firebase Live Connected
+          </span>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-neutral-950 rounded-xl border border-neutral-800">
-          <button
-            onClick={() => setAppMode('admin')}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              appMode === 'admin'
-                ? 'bg-amber-500 text-neutral-950 shadow-xs'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            <span>⚡ DoNow Admin (11 Screens)</span>
-          </button>
+        <div className="flex items-center gap-2">
+          {/* App Switcher Tabs */}
+          <div className="flex items-center gap-1 p-1 bg-neutral-950 rounded-xl border border-neutral-800">
+            <button
+              onClick={() => handleModeChange('admin')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                appMode === 'admin'
+                  ? 'bg-amber-500 text-neutral-950 shadow-xs'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>⚡ Admin</span>
+            </button>
 
-          <button
-            onClick={() => setAppMode('partner')}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              appMode === 'partner'
-                ? 'bg-amber-500 text-neutral-950 shadow-xs'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            <span>🤝 Partner App (16 Screens)</span>
-          </button>
+            <button
+              onClick={() => handleModeChange('partner')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                appMode === 'partner'
+                  ? 'bg-amber-500 text-neutral-950 shadow-xs'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>🤝 Partner App</span>
+            </button>
 
+            <button
+              onClick={() => handleModeChange('customer')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                appMode === 'customer'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <span>👤 Customer App</span>
+            </button>
+          </div>
+
+          {/* Download & Install Apps Button */}
           <button
-            onClick={() => setAppMode('customer')}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              appMode === 'customer'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-neutral-400 hover:text-white'
-            }`}
+            onClick={() => setIsInstallModalOpen(true)}
+            className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
           >
-            <span>👤 Customer App (24 Screens)</span>
+            <Download className="w-3.5 h-3.5" />
+            <span>📲 Download Apps</span>
           </button>
         </div>
       </div>
 
       {/* Active App Mode Rendering */}
       {appMode === 'admin' ? (
-        <DoNowAdminEcosystem onBackToApps={() => setAppMode('partner')} />
+        <DoNowAdminEcosystem onBackToApps={() => handleModeChange('partner')} />
       ) : appMode === 'partner' ? (
         <div className="py-6 flex flex-col items-center justify-center">
-          <PartnerApp onSwitchToCustomerApp={() => setAppMode('customer')} />
+          <PartnerApp onSwitchToCustomerApp={() => handleModeChange('customer')} />
         </div>
       ) : (
         <div className="py-6 flex flex-col items-center justify-center">
           <AppProvider>
-            <CustomerAppContent onSwitchToPartnerApp={() => setAppMode('partner')} />
+            <CustomerAppContent onSwitchToPartnerApp={() => handleModeChange('partner')} />
           </AppProvider>
         </div>
       )}
+
+      {/* Install & Download Apps Modal */}
+      <InstallAppsModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+        onSelectApp={(app) => handleModeChange(app)}
+      />
     </div>
   );
 }

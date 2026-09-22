@@ -118,6 +118,16 @@ class _Screen06HomeDashboardState extends State<Screen06HomeDashboard> {
           ],
         ),
         actions: [
+          ActionChip(
+            avatar: const Icon(Icons.support_agent, size: 16, color: Color(0xFF0F766E)),
+            label: const Text('Partner App', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F766E))),
+            backgroundColor: const Color(0xFFE6FFFA),
+            side: const BorderSide(color: Color(0xFF2DD4BF)),
+            onPressed: () {
+              Navigator.of(context).pushNamed('/partner-home');
+            },
+          ),
+          const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             onPressed: () {

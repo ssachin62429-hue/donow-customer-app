@@ -27,6 +27,9 @@ const SCREENS: ScreenOption[] = [
   { id: 'partner-no-show', num: 14, title: 'Customer No-Show', desc: '10-min grace timer & compensation' },
   { id: 'partner-support', num: 15, title: 'Help & Support Desk', desc: 'Cash dispute, behavior, app ticket' },
   { id: 'partner-profile', num: 16, title: 'Profile & Settings', desc: 'Admin services read-only, language toggle' },
+  { id: 'partner-call', num: 17, title: 'In-App Masked Call', desc: 'Virtual bridge relay +91 522 491 8820' },
+  { id: 'partner-chat', num: 18, title: 'In-App Customer Chat', desc: 'Encrypted chat & quick template chips' },
+  { id: 'partner-sos', num: 19, title: 'Emergency SOS & Police 112', desc: 'UP 112 dispatch, GPS telemetry & audio beacon' },
 ];
 
 interface Props {
@@ -54,7 +57,7 @@ export const PartnerScreenTester: React.FC<Props> = ({ onSwitchToCustomerApp }) 
           className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-neutral-950 font-black text-xs rounded-full shadow-2xl flex items-center gap-1.5 active:scale-95 transition-all border-2 border-amber-300"
         >
           <Layers className="w-4 h-4" />
-          <span>Partner Screens (16)</span>
+          <span>Partner Screens (19)</span>
         </button>
       </div>
     );
@@ -71,7 +74,7 @@ export const PartnerScreenTester: React.FC<Props> = ({ onSwitchToCustomerApp }) 
               DoNow Partner Navigation
             </h3>
             <p className="text-[11px] text-neutral-500">
-              Jump directly to any of the 16 prototype screens
+              Jump directly to any of the 19 prototype screens
             </p>
           </div>
 

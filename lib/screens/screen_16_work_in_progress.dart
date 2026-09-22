@@ -190,7 +190,14 @@ class _Screen16WorkInProgressState extends State<Screen16WorkInProgress> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.call_rounded, color: Color(0xFF0F766E)),
-                      onPressed: () {},
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Connecting to customer via DoNow masked proxy relay...'),
+                            backgroundColor: Color(0xFF0F766E),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

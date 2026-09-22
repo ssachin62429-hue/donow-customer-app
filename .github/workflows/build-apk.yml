@@ -1,0 +1,45 @@
+name: Build Android APKs
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual trigger from GitHub UI anytime!
+
+jobs:
+  build-flutter-apk:
+    name: Build Flutter Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Flutter Dependencies
+        run: |
+          flutter pub get
+          if [ ! -d "android" ]; then
+            flutter create . --platforms=android --org com.donow.app
+          fi
+
+      - name: Build Android APK (Release)
+        run: flutter build apk --release --no-shrink
+
+      - name: Upload Customer & Partner APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DoNow-Android-APKs
+          path: build/app/outputs/flutter-apk/*.apk
+          retention-days: 30

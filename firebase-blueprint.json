@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "Represents an on-demand task booking between customer and partner in DoNow",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique Order ID e.g. DN-1048" },
+        "customerId": { "type": "string", "description": "Customer identifier" },
+        "customerName": { "type": "string", "description": "Customer full name" },
+        "customerPhone": { "type": "string", "description": "Masked customer phone number" },
+        "serviceCategory": { "type": "string", "description": "Category of task" },
+        "taskDescription": { "type": "string", "description": "Detailed notes or task instructions" },
+        "locationAddress": { "type": "string", "description": "Street address / landmark in Lucknow" },
+        "status": {
+          "type": "string",
+          "enum": ["finding_partner", "accepted", "arrived", "in_progress", "completed", "cancelled"],
+          "description": "Lifecycle state of the task"
+        },
+        "arrivalOtp": { "type": "string", "description": "4-digit arrival code verification OTP" },
+        "partnerId": { "type": "string", "description": "Assigned partner ID" },
+        "partnerName": { "type": "string", "description": "Assigned partner name" },
+        "partnerPhone": { "type": "string", "description": "Masked partner phone number" },
+        "totalAmount": { "type": "number", "description": "Total cash or fare to collect" },
+        "tipAmount": { "type": "number", "description": "Optional tip for partner" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of creation" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      },
+      "required": ["id", "customerId", "serviceCategory", "status", "totalAmount"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Real-time in-app masked communication message between customer and partner",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Message ID" },
+        "orderId": { "type": "string", "description": "Associated order ID" },
+        "sender": { "type": "string", "enum": ["customer", "partner"], "description": "Who sent the message" },
+        "text": { "type": "string", "description": "Message text content" },
+        "timestamp": { "type": "string", "description": "Timestamp formatted string" }
+      },
+      "required": ["id", "orderId", "sender", "text"]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Public or shared tasks accessible to active customer and assigned partner"
+    },
+    "/orders/{orderId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "In-app chat messages for a specific order"
+    }
+  }
+}

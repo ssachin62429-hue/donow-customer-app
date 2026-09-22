@@ -16,7 +16,10 @@ export type PartnerScreenId =
   | 'partner-performance'           // Screen 13: Performance & Cooldown
   | 'partner-no-show'               // Screen 14: No-Show / Cancellation
   | 'partner-support'               // Screen 15: Help & Support Ticket
-  | 'partner-profile';              // Screen 16: Profile & Settings
+  | 'partner-profile'               // Screen 16: Profile & Settings
+  | 'partner-call'                  // Screen 17: Dedicated In-App Masked Call
+  | 'partner-chat'                  // Screen 18: Dedicated In-App Customer Chat
+  | 'partner-sos';                  // Screen 19: Dedicated Emergency SOS & 112 Desk
 
 export type PartnerTier = 'Green' | 'Amber' | 'Red';
 

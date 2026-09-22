@@ -128,6 +128,13 @@ class _Screen22ProfileTabState extends State<Screen22ProfileTab> {
                 child: Column(
                   children: [
                     _buildSettingsTile(
+                      icon: Icons.support_agent_rounded,
+                      title: 'Switch to Partner (Sathi) App',
+                      color: const Color(0xFF0F766E),
+                      onTap: () => Navigator.of(context).pushNamed('/partner-home'),
+                    ),
+                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    _buildSettingsTile(
                       icon: Icons.shield_rounded,
                       title: 'SOS & Emergency Safety',
                       color: const Color(0xFFDC2626),
